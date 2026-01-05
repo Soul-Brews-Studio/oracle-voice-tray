@@ -48,6 +48,21 @@ jobs:
         working-directory: src-tauri
         run: cargo test
 
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Generate coverage report
+        working-directory: src-tauri
+        run: |
+          cargo llvm-cov --lib --lcov --output-path lcov.info
+          cargo llvm-cov report --lib
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: src-tauri/lcov.info
+          fail_ci_if_error: false
+
       - name: Build app
         run: cargo tauri build
         env:

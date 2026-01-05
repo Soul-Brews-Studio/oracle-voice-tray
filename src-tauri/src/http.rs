@@ -19,19 +19,34 @@ pub async fn start_http_server(state: Arc<AppState>) {
             axum::response::Html(r#"<!DOCTYPE html>
 <html><head><title>Voice Tray API</title>
 <style>body{font-family:system-ui;max-width:600px;margin:40px auto;padding:20px;background:#1a1a2e;color:#eee}
-h1{color:#0f9}code{background:#333;padding:2px 6px;border-radius:4px}
-pre{background:#222;padding:15px;border-radius:8px;overflow-x:auto}</style></head>
-<body><h1>🎙️ Voice Tray API</h1>
-<p>Endpoints:</p>
+h1{color:#0f9}h2{color:#0af;margin-top:24px}code{background:#333;padding:2px 6px;border-radius:4px}
+pre{background:#222;padding:15px;border-radius:8px;overflow-x:auto}.note{color:#888;font-size:0.9em}</style></head>
+<body><h1>🎙️ Voice Tray</h1>
+<p>Centralized text-to-speech for agents. Accepts commands via <strong>HTTP</strong> or <strong>MQTT</strong>.</p>
+
+<h2>HTTP API</h2>
 <ul>
 <li><code>POST /speak</code> - Queue text for speech</li>
 <li><code>GET /timeline</code> - Get speech queue</li>
-<li><code>GET /status</code> - Get server status</li>
+<li><code>GET /status</code> - Get server status (includes MQTT state)</li>
 </ul>
-<h3>Example:</h3>
 <pre>curl -X POST http://127.0.0.1:37779/speak \
   -H "Content-Type: application/json" \
   -d '{"text":"Hello!","voice":"Samantha"}'</pre>
+
+<h2>MQTT</h2>
+<p>Subscribe/publish to configurable topics (default: <code>voice/speak</code>)</p>
+<pre>mosquitto_pub -t voice/speak \
+  -m '{"text":"Hello from MQTT!","agent":"my-agent"}'</pre>
+<p class="note">Configure broker, port, and topics in the tray app settings.</p>
+
+<h2>Payload</h2>
+<pre>{
+  "text": "Hello!",        // required
+  "voice": "Samantha",     // optional (default: Samantha)
+  "rate": 220,             // optional (words per minute)
+  "agent": "my-agent"      // optional (shows in timeline)
+}</pre>
 </body></html>"#)
         }))
         .route("/speak", post(|State(state): State<Arc<AppState>>, Json(req): Json<SpeakRequest>| async move {

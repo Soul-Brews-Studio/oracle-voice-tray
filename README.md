@@ -1,13 +1,15 @@
-# Voice Tray
+# Oracle Voice Tray
 
-Central voice notification system for Claude Code. A Tauri app that receives voice requests via HTTP, queues them, speaks using macOS `say`, and displays a timeline UI.
+Centralized text-to-speech for Claude Code agents. A macOS menu bar app (Tauri 2.0) that receives voice requests via **HTTP** or **MQTT**, queues them, speaks using macOS `say`, and displays a timeline UI.
 
 ## Features
 
-- **HTTP API** - Hooks can POST voice requests to `http://127.0.0.1:37779/speak`
-- **Voice Queue** - Messages are queued and spoken one at a time (no overlap)
+- **Dual Protocol** - HTTP API + MQTT subscriber for maximum flexibility
+- **Voice Queue** - Messages queued and spoken one at a time (no overlap)
 - **Timeline UI** - Click tray icon to see voice history with timestamps
-- **Per-Agent Voices** - Different voices for different agents (configurable via TOML)
+- **Settings UI** - Configure MQTT broker, port, topics, and authentication
+- **Live Status** - Tray icon shows connection state (connected/disconnected)
+- **Per-Agent Voices** - Different voices for different agents (via hook scripts)
 
 ## Installation
 
@@ -17,48 +19,74 @@ npm install
 npm run tauri build
 
 # Copy to Applications
-cp -r src-tauri/target/release/bundle/macos/voice-tray.app /Applications/
+cp -r "src-tauri/target/release/bundle/macos/Oracle Voice Tray.app" /Applications/
 
 # Launch (runs in menu bar)
-open /Applications/voice-tray.app
+open "/Applications/Oracle Voice Tray.app"
 ```
 
-## HTTP API
+## Usage
 
-### POST /speak
-Queue a voice message.
+### HTTP API
 
+**POST /speak** - Queue a voice message
 ```bash
 curl -X POST http://127.0.0.1:37779/speak \
   -H "Content-Type: application/json" \
   -d '{"text":"Hello world","voice":"Samantha","agent":"Main"}'
 ```
 
-Response:
-```json
-{"id":1,"status":"queued"}
-```
-
-### GET /timeline
-Get all voice entries.
-
+**GET /timeline** - Get all voice entries
 ```bash
 curl http://127.0.0.1:37779/timeline
 ```
 
-### GET /status
-Get current status.
-
+**GET /status** - Get current status
 ```bash
 curl http://127.0.0.1:37779/status
 ```
 
 Response:
 ```json
-{"total":5,"queued":0,"is_speaking":false}
+{
+  "total": 5,
+  "queued": 0,
+  "is_speaking": false,
+  "mqtt_status": "connected",
+  "mqtt_broker": "127.0.0.1:1883"
+}
+```
+
+### MQTT
+
+Subscribe to configurable topics (default: `voice/speak`). Requires an MQTT broker like [Mosquitto](https://mosquitto.org/).
+
+```bash
+# Install mosquitto (macOS)
+brew install mosquitto
+brew services start mosquitto
+
+# Send a voice message
+mosquitto_pub -t voice/speak \
+  -m '{"text":"Hello from MQTT!","agent":"my-agent"}'
+```
+
+Configure broker, port, topics, and authentication in the tray app settings (click tray icon → Settings).
+
+### Payload Schema
+
+```json
+{
+  "text": "Hello!",        // required
+  "voice": "Samantha",     // optional (default: Samantha)
+  "rate": 220,             // optional (words per minute, default: 220)
+  "agent": "my-agent"      // optional (shows in timeline)
+}
 ```
 
 ## Hook Integration
+
+### HTTP Hook
 
 Use `scripts/voice-tray-notify.sh` as a Claude Code hook:
 
@@ -66,18 +94,25 @@ Use `scripts/voice-tray-notify.sh` as a Claude Code hook:
 {
   "hooks": {
     "SubagentStop": [{
-      "hooks": [{
-        "type": "command",
-        "command": "/path/to/voice-tray/scripts/voice-tray-notify.sh"
-      }]
+      "type": "command",
+      "command": "/path/to/voice-tray-v2/scripts/voice-tray-notify.sh"
     }]
   }
 }
 ```
 
+### MQTT Hook
+
+Use `scripts/voice-tray-mqtt-notify.sh` for MQTT-based notifications:
+
+```bash
+# Usage: voice-tray-mqtt-notify.sh "message" [voice] [agent] [rate]
+./scripts/voice-tray-mqtt-notify.sh "Task completed" "Daniel" "Agent-1" 220
+```
+
 ## Voice Configuration
 
-Edit `scripts/agent-voices.toml`:
+The HTTP hook script (`voice-tray-notify.sh`) reads voice settings from `scripts/agent-voices.toml`:
 
 ```toml
 [voices]
@@ -93,7 +128,7 @@ agent_1 = 220
 default = 220
 ```
 
-List available voices:
+List available macOS voices:
 ```bash
 say -v '?'
 ```
@@ -102,21 +137,42 @@ say -v '?'
 
 ```
 Claude Code Hook
-      |
-voice-tray-notify.sh
-      | POST /speak
-Voice Tray App (Tauri)
-      |
-macOS say -v [voice]
-      |
-Timeline UI (WebView)
+      │
+      ├── voice-tray-notify.sh ──► HTTP POST /speak
+      │                                    │
+      └── voice-tray-mqtt-notify.sh ──► MQTT publish
+                                           │
+                              ┌────────────┴────────────┐
+                              │   Oracle Voice Tray     │
+                              │   (Tauri macOS App)     │
+                              │                         │
+                              │  ┌─────────┐ ┌───────┐  │
+                              │  │ HTTP    │ │ MQTT  │  │
+                              │  │ :37779  │ │Client │  │
+                              │  └────┬────┘ └───┬───┘  │
+                              │       └─────┬────┘      │
+                              │         Voice Queue     │
+                              │             │           │
+                              │      macOS say -v       │
+                              │             │           │
+                              │       Timeline UI       │
+                              └─────────────────────────┘
 ```
 
 ## Development
 
 ```bash
+# Run in dev mode with hot reload
 npm run tauri dev
+
+# Build release
+npm run tauri build
 ```
+
+## Requirements
+
+- macOS 10.15+
+- For MQTT: Mosquitto or compatible MQTT broker
 
 ## License
 

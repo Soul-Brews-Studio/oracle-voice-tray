@@ -248,6 +248,9 @@ pub fn run() {
 
             *state_setup.tray_icon.lock().unwrap() = Some(tray);
 
+            // Update tray icon to reflect current MQTT status (may have connected before tray was created)
+            update_tray_icon(&state_setup, false);
+
             // Hide popup when it loses focus
             let app_handle_blur = app_handle.clone();
             if let Some(window) = app.get_webview_window("main") {

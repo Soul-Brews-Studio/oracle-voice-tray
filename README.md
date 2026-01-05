@@ -26,12 +26,14 @@ Voices: Samantha (default), Daniel, Karen, Rishi, Alex, Victoria
 Ports: 37779 (HTTP) | 1883 (MQTT default, configurable)
 
 CREATE HOOK FOR CLAUDE CODE:
-  Use scripts/voice-tray-notify.sh - it reads the transcript and announces:
-  - What agent finished (Main, Agent 1, Subagent, etc.)
-  - Last message from the conversation
-  - Uses different voices per agent
+  Use scripts/voice-tray-notify.sh which:
+  1. Receives JSON from Claude Code hook (session_id, transcript_path, etc.)
+  2. Reads last 20 lines of transcript, extracts last "text" field
+  3. Detects agent: Main (cwd), Agent 1-3 (agents/N path), Subagent (slug)
+  4. Looks up voice in scripts/agent-voices.toml (Samantha, Daniel, Karen, etc.)
+  5. POSTs to Voice Tray: {"text":"Agent 1 says: ...", "voice":"Daniel"}
 
-  Add to ~/.claude/settings.json:
+  Hook config (~/.claude/settings.json):
   {
     "hooks": {
       "Stop": [{"type":"command","command":"/path/to/scripts/voice-tray-notify.sh"}],
@@ -39,7 +41,7 @@ CREATE HOOK FOR CLAUDE CODE:
     }
   }
 
-  Or simple curl (just announces "done"):
+  Simple version (just "done"):
   curl -X POST http://127.0.0.1:37779/speak -d '{"text":"Done","agent":"Claude"}'
 
 Key files:

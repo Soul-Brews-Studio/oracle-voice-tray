@@ -14,7 +14,7 @@
 
 body {
   width: 320px;
-  height: 400px;
+  height: 480px;
   overflow: hidden;
 }
 
@@ -72,6 +72,7 @@ h1 {
   flex: 1;
   overflow-y: auto;
   padding: 12px 0;
+  min-height: 0;
 }
 
 .timeline::-webkit-scrollbar {
@@ -192,4 +193,168 @@ button {
 .btn-secondary:hover {
   background: #444;
   color: #fff;
+}
+
+.btn-icon {
+  flex: 0;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.btn-icon:hover {
+  opacity: 1;
+}
+
+/* Header layout */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* MQTT status indicator */
+.mqtt-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: help;
+  transition: all 0.2s;
+}
+
+.mqtt-status .mqtt-icon {
+  font-size: 12px;
+  opacity: 0.4;
+}
+
+.mqtt-status .mqtt-label {
+  font-size: 10px;
+  color: #888;
+}
+
+.mqtt-status.connecting .mqtt-icon {
+  opacity: 0.6;
+  animation: mqtt-pulse 1.5s ease-in-out infinite;
+}
+
+.mqtt-status.connecting .mqtt-label {
+  color: #fbbf24;
+}
+
+.mqtt-status.connected {
+  background: rgba(74, 222, 128, 0.15);
+}
+
+.mqtt-status.connected .mqtt-icon {
+  opacity: 1;
+}
+
+.mqtt-status.connected .mqtt-label {
+  color: #4ade80;
+}
+
+.mqtt-status.disconnected {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.mqtt-status.disconnected .mqtt-icon {
+  opacity: 0.7;
+}
+
+.mqtt-status.disconnected .mqtt-label {
+  color: #ef4444;
+}
+
+@keyframes mqtt-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+/* Hidden utility */
+.hidden {
+  display: none !important;
+}
+
+/* Settings form */
+.settings-form {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.settings-form h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 10px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.form-group input::placeholder {
+  color: #666;
+}
+
+/* Settings message */
+.settings-message {
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-top: 12px;
+}
+
+.settings-message.success {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.settings-message.error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Settings view layout */
+#settings-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#timeline-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }

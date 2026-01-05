@@ -25,6 +25,17 @@ Payload: {"text":"required", "voice":"Samantha", "rate":220, "agent":"name"}
 Voices: Samantha (default), Daniel, Karen, Rishi, Alex, Victoria
 Ports: 37779 (HTTP) | 1883 (MQTT default, configurable)
 
+CREATE HOOK FOR CLAUDE CODE:
+  Add to ~/.claude/settings.json:
+  {
+    "hooks": {
+      "Stop": [{
+        "type": "command",
+        "command": "curl -s -X POST http://127.0.0.1:37779/speak -H 'Content-Type: application/json' -d '{\"text\":\"Task done\",\"agent\":\"Claude\"}'"
+      }]
+    }
+  }
+
 Key files:
   src-tauri/src/lib.rs    - Main app, Tauri commands
   src-tauri/src/http.rs   - HTTP server

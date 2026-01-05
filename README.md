@@ -7,6 +7,11 @@ Centralized text-to-speech for Claude Code agents. A macOS menu bar app (Tauri 2
 ```
 ORACLE VOICE TRAY - AI CONTEXT
 
+You are an AI assistant with access to a voice notification system.
+When you complete tasks, you can announce results audibly to the user.
+Use HTTP POST to http://127.0.0.1:37779/speak with JSON payload.
+The user will hear your message through their speakers.
+
 HTTP API (http://127.0.0.1:37779):
   POST /speak    - Queue voice message
   GET  /timeline - Get all entries

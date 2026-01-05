@@ -171,24 +171,75 @@ bun tauri build
 
 ## For AI Assistants
 
-If you're an AI working with this codebase:
+<details>
+<summary>Click to expand AI context prompt</summary>
 
-**To send voice notifications:**
+### Context
+
+Oracle Voice Tray is a macOS menu bar app for centralized text-to-speech. You can send voice notifications via HTTP or MQTT.
+
+### Quick Start
+
+**Send a voice notification:**
 ```bash
 curl -X POST http://127.0.0.1:37779/speak \
   -H "Content-Type: application/json" \
-  -d '{"text":"Task completed","voice":"Samantha","agent":"Claude"}'
+  -d '{"text":"Hello from AI","agent":"Claude"}'
 ```
 
-**Key files:**
-- `src-tauri/src/lib.rs` - Main app logic, Tauri commands
-- `src-tauri/src/http.rs` - HTTP server (port 37779)
-- `src-tauri/src/mqtt.rs` - MQTT client
-- `src-tauri/src/tray.rs` - Tray icon, voice queue
-- `src/main.js` - Frontend logic
-- `src/styles.css` - UI styles
+**Check if app is running:**
+```bash
+curl -s http://127.0.0.1:37779/status | jq
+```
 
-**Build commands:** `bun tauri dev` (dev) or `bun tauri build` (release)
+### Available Voices
+
+Use macOS built-in voices: `Samantha` (default), `Daniel` (British), `Karen` (Australian), `Rishi` (Indian), `Alex`, `Victoria`, etc.
+
+```bash
+# List all voices
+say -v '?'
+```
+
+### Payload Options
+
+```json
+{
+  "text": "Message to speak",     // required
+  "voice": "Samantha",            // optional, default: Samantha
+  "rate": 220,                    // optional, words per minute
+  "agent": "YourAgentName"        // optional, shows in UI
+}
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src-tauri/src/lib.rs` | Main app, Tauri commands |
+| `src-tauri/src/http.rs` | HTTP server (port 37779) |
+| `src-tauri/src/mqtt.rs` | MQTT client |
+| `src-tauri/src/tray.rs` | Tray icon, voice queue |
+| `src-tauri/src/state.rs` | App state, data structures |
+| `src-tauri/src/config.rs` | MQTT config load/save |
+| `src/main.js` | Frontend logic |
+| `src/styles.css` | UI styles |
+
+### Build Commands
+
+```bash
+bun tauri dev    # Development with hot reload
+bun tauri build  # Release build
+```
+
+### Tips
+
+- App runs on port **37779** (HTTP)
+- MQTT default topic: `voice/speak`
+- Voices queue automatically, no overlap
+- Check `/status` endpoint for MQTT connection state
+
+</details>
 
 ## Requirements
 

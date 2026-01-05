@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "voice-tray-v2",
+  "productName": "Oracle Voice Tray",
   "version": "0.2.0",
-  "identifier": "com.laris.voice-tray-v2",
+  "identifier": "com.laris.oracle-voice-tray",
   "build": {
     "frontendDist": "../src"
   },

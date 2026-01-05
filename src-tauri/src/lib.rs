@@ -313,7 +313,7 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    println!("Voice Tray v{} starting...", VERSION);
+    println!("Oracle Voice Tray v{} starting...", VERSION);
 
     let state = Arc::new(AppState::default());
     let state_queue = state.clone();
@@ -376,7 +376,7 @@ pub fn run() {
             *state_setup.speaking_icon.lock().unwrap() = speaking_icon;
 
             // Create right-click menu
-            let quit_item = MenuItem::with_id(app, "quit", "Quit Voice Tray v2", true, None::<&str>)?;
+            let quit_item = MenuItem::with_id(app, "quit", "Quit Oracle Voice Tray", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&quit_item])?;
 
             // Use idle lips icon or fall back to default
@@ -397,7 +397,7 @@ pub fn run() {
                 .icon(initial_icon)
                 .menu(&menu)
                 .show_menu_on_left_click(false)
-                .tooltip("Voice Tray v2 - MQTT + HTTP")
+                .tooltip("Oracle Voice Tray - MQTT + HTTP")
                 .on_menu_event(move |app, event| {
                     if event.id.as_ref() == "quit" {
                         app.exit(0);

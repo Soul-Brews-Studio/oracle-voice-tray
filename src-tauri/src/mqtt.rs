@@ -18,7 +18,7 @@ pub async fn start_mqtt_client(state: Arc<AppState>) {
 
     let mut mqttoptions = MqttOptions::new("voice-tray-v2", MQTT_BROKER, MQTT_PORT);
     mqttoptions.set_keep_alive(Duration::from_secs(30));
-    mqttoptions.set_clean_session(false); // Persist session for offline messages
+    mqttoptions.set_clean_session(true); // Don't replay old messages on reconnect
 
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
 

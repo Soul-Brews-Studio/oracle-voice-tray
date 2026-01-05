@@ -31,11 +31,12 @@ function renderEntry(entry) {
   `;
 }
 
-// Escape HTML to prevent XSS
+// Escape HTML to prevent XSS, convert \n to <br>
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
-  return div.innerHTML;
+  // Convert literal \n to <br> for display
+  return div.innerHTML.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
 }
 
 // Update the timeline UI
